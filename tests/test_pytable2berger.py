@@ -1,27 +1,13 @@
 #!/usr/bin/env python
 """Tests for `pytable2berger` package."""
 
-import pytest
+import secrets
+from itertools import chain
+
 from click.testing import CliRunner
 
 from pytable2berger import cli
-
-
-@pytest.fixture
-def response():
-    """Sample pytest fixture.
-
-    See more at: http://doc.pytest.org/en/latest/fixture.html
-    """
-    # import requests
-    # return requests.get('https://github.com/audreyr/cookiecutter-pypackage')
-
-
-def test_content(response):
-    """Sample pytest test function with the pytest fixture as an argument."""
-    # from bs4 import BeautifulSoup
-    # assert 'GitHub' in BeautifulSoup(response.content).title.string
-    del response
+from pytable2berger.pytable2berger import _random_combination, generate_days_matches  # noqa: PLC2701
 
 
 def test_command_line_interface():
@@ -33,3 +19,27 @@ def test_command_line_interface():
     help_result = runner.invoke(cli.main, ['--help'])
     assert help_result.exit_code == 0
     assert '--help  Show this message and exit.' in help_result.output
+
+
+def test_using_combinations_and_berger_table():
+    """Test functionnality."""
+    secrets.randbelow(1_000_000_000)
+
+    joueurs = ['Captain Brice', 'Julien', 'Lionel', 'Xavier', 'Pol', 'Tristan', 'Fabien', 'Damien', 'Francky', 'Khalil']
+    # génération (aléatoire) des combinaisons de tous les matchs possibles sans répétitions
+    random_players = _random_combination(joueurs, len(joueurs))
+    days_matches = generate_days_matches(random_players)
+
+    n = len(joueurs)
+
+    # on peut générer pour chaque jour la liste des matchs qui font jouer tous les joueurs
+    for day_matches in days_matches:
+        # tests runtimes
+
+        # le nombre de matchs pour une journée est fixe et égale au nombre de joueurs divisé par deux.
+        assert len(day_matches) == n // 2
+
+        # tous les joueurs jouent dans la journée
+        assert len(set(sum(day_matches, ()))) == n
+        # https://docs.python.org/fr/3/library/itertools.html#itertools.chain
+        assert len(set(chain(*day_matches))) == n
