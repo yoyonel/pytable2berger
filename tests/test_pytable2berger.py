@@ -1,13 +1,11 @@
 #!/usr/bin/env python
 """Tests for `pytable2berger` package."""
-
-import secrets
 from itertools import chain
 
 from click.testing import CliRunner
 
 from pytable2berger import cli
-from pytable2berger.pytable2berger import _random_combination, generate_days_matches  # noqa: PLC2701
+from pytable2berger.pytable2berger import generate_days_matches  # noqa: PLC2701
 
 
 def test_command_line_interface():
@@ -16,21 +14,25 @@ def test_command_line_interface():
     result = runner.invoke(cli.main)
     assert result.exit_code == 0
     assert 'pytable2berger' in result.output
+
     help_result = runner.invoke(cli.main, ['--help'])
     assert help_result.exit_code == 0
-    assert '--help  Show this message and exit.' in help_result.output
+    assert '[PLAYERS_NAMES]' in help_result.output
+    assert '--help' in help_result.output
+    assert 'Show this message and exit.' in help_result.output
+    assert '--version' in help_result.output
+    assert 'Show the version and exit.' in help_result.output
+    assert '--randomize_players_names' in help_result.output
+    assert 'Randomize players names.  [default: False]' in help_result.output
 
 
 def test_using_combinations_and_berger_table():
-    """Test functionnality."""
-    secrets.randbelow(1_000_000_000)
+    """Test functionality."""
+    players = ['Captain Brice', 'Julien', 'Lionel', 'Xavier', 'Pol', 'Tristan', 'Fabien', 'Damien', 'Francky', 'Khalil']
 
-    joueurs = ['Captain Brice', 'Julien', 'Lionel', 'Xavier', 'Pol', 'Tristan', 'Fabien', 'Damien', 'Francky', 'Khalil']
-    # génération (aléatoire) des combinaisons de tous les matchs possibles sans répétitions
-    random_players = _random_combination(joueurs, len(joueurs))
-    days_matches = generate_days_matches(random_players)
+    days_matches = generate_days_matches(players, randomize_players_names=True)
 
-    n = len(joueurs)
+    n = len(players)
 
     # on peut générer pour chaque jour la liste des matchs qui font jouer tous les joueurs
     for day_matches in days_matches:

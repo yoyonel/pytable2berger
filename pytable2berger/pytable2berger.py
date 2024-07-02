@@ -1,8 +1,12 @@
 """Main module."""
 
 import random
+import secrets
 from collections.abc import Iterable
 from itertools import combinations
+
+# https://docs.python.org/3/library/secrets.html
+secrets.randbelow(1_000_000_000)
 
 
 def _random_combination(iterable: Iterable, r: int) -> list:
@@ -38,8 +42,12 @@ def _compute_day(i: int, j: int, n: int) -> int:
     return day
 
 
-def generate_days_matches(players: list[str]) -> list[list]:
+def generate_days_matches(players: list[str], randomize_players_names: bool = False) -> list[list]:
     """Main EntryPoint."""
+    if randomize_players_names:
+        # génération (aléatoire) des combinaisons de tous les matchs possibles sans répétitions
+        players = _random_combination(players, len(players))
+
     # https://docs.python.org/3/library/itertools.html#itertools.combinations
     combined_matches: list[tuple] = list(combinations(players, 2))
 
